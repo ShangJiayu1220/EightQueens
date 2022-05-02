@@ -1,0 +1,121 @@
+//先输入数字N代表N个皇后
+//最后输出空白棋盘用0代替，皇后用1代替 
+
+#include <bits/stdc++.h>
+using namespace std; 
+int num;
+#define STACK_INIT_SIZE 10
+#define STACKINCREMENT 5
+typedef struct
+{
+	int *base;          //栈底 
+	int *top;           //栈顶
+}SqStack; 
+
+ 
+//构造空栈S
+void InitStack(SqStack *S)
+{
+	(*S).base=new int;
+	if(!(*S).base) 
+		throw("栈底内存申请失败");  
+	(*S).top=(*S).base;
+} 
+
+//入栈
+int Push(SqStack *S,int k)
+{
+	*((*S).top++)=k;
+	return 1;
+}
+//出栈
+int Pop(SqStack *S,int *k)
+{
+	if((*S).top==(*S).base) return 0;
+	*k=*(--(*S).top);
+	return 1;
+}
+
+
+int StackPrint(SqStack S,int N)
+{
+	int array[N][N];
+	int j,k;
+	for(j=0;j<N;j++)        //先将棋盘置0 
+	{
+		for(k=0;k<N;k++)
+		array[j][k]=0;
+	}
+	int row=0,col;
+	while(row<S.top-S.base) //放置皇后 
+	{
+		col=*(S.base+row);
+		array[row][col]=1;
+		row++;
+	}
+	for(j=0;j<N;j++)         //打印棋盘与皇后 
+	{
+		for(k=0;k<N;k++)
+		cout<<array[j][k]<<" ";
+		cout<<endl;
+	}
+	return 1;
+}
+
+//判断在同一行、列、斜线上是否有其他“皇后” 
+int Judge(SqStack S,int row,int col)
+{
+ int row2=0;
+ int col2;
+ while(row2<S.top-S.base)
+ {
+  col2=*(S.base+row2);
+  if(col2==col||(row-row2)==(col2-col)||(row-row2)==(col-col2))
+   return 0;
+  row2++;
+ }
+ return 1;
+}
+
+
+void Queen(SqStack *S,int row,int N)
+{
+	int e;
+	for(int col=0;col<N;col++)
+	{   
+		if(Judge(*S,row,col))
+		{
+			Push(&(*S),col);
+			row++;
+		}
+    	else{continue;}
+		if(row==N)
+		{
+			num++;
+			cout<<"第"<<num<<"个解："<<endl;
+			StackPrint(*S,N);
+			Pop(&(*S),&e);
+			row--;
+		}
+		else
+		{
+		Queen(&(*S),row,N);
+		Pop(&(*S),&e);
+		row--;
+		}
+	} 
+}
+
+
+int main()
+{
+	int N;
+	cin>>N;
+	SqStack S;
+	try 
+	{
+		InitStack(&S);
+	}catch(string *err) {cout<<err;}
+	Queen(&S,0,N);
+	return 0;
+}
